@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Test Your Brains</title>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <h1>Test your brains</h1>
+    <form method="POST" action="/">
+        <table>
+            <tr>
+                <input type="hidden" name="id" value="{{ user_id }}"> <!-- Hidden field for user ID -->
+            </tr>
+            <!-- form for test -->
+            <tr>
+                <td>Age:</td>
+                <td><input type="number" name="age" required></td>
+            </tr>
+            <tr>
+                <td>Gender:</td>
+                <td>
+                    <input type="radio" name="gender" value="male" required>Male
+                    <input type="radio" name="gender" value="female" required>Female
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><input type="submit" value="Submit"></td>
+            </tr>
+        </table>
+    </form>
+</div>
+{% endblock %}

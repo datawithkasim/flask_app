@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Math Test</title>
+{% endblock %}
+
+{% block body %}
+<h1>Answer the following questions:</h1>
+<h3>Make sure to only use numerical characters</h3>
+
+<form method="POST" action="/test">
+    <table>
+        <tr>
+            <td><p>What is 3+3?</p></td>
+            <td><input type="number" name="answer_1" required></td>
+        </tr>
+        <tr>
+            <td><p>What is 2 squared?</p></td>
+            <td><input type="number" name="answer_2" required></td>
+        </tr>
+        <tr>
+            <td><p>What is pi to 3 decimal places?</p></td>
+            <td><input type="number" name="answer_3" required></td>
+        </tr>
+        <tr>
+            <td><p>What is brown and sticky?</p></td>
+            <td><input type="number" name="answer_4" required></td>
+        </tr>
+        <tr>
+            <td colspan="2"><input type="submit" value="Submit"></td>
+        </tr>
+    </table>
+</form>
+{% endblock %}
