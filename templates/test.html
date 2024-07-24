@@ -11,6 +11,9 @@
 <form method="POST" action="/test">
     <table>
         <tr>
+            <input type="hidden" name="user_id" value="{{ user_id }}"> <!-- Hidden field for user ID -->
+        </tr>
+        <tr>
             <td><p>What is 3+3?</p></td>
             <td><input type="number" name="answer_1" required></td>
         </tr>
@@ -25,6 +28,30 @@
         <tr>
             <td><p>What is brown and sticky?</p></td>
             <td><input type="number" name="answer_4" required></td>
+        </tr>
+        <tr>
+            <td><p>What is brown and sticky?</p></td>
+            <td><input type="number" name="answer_5" required></td>
+        </tr>
+        <tr>
+            <td><p>What is 3+3?</p></td>
+            <td><input type="number" name="answer_6" required></td>
+        </tr>
+        <tr>
+            <td><p>What is 2 squared?</p></td>
+            <td><input type="number" name="answer_7" required></td>
+        </tr>
+        <tr>
+            <td><p>What is pi to 3 decimal places?</p></td>
+            <td><input type="number" name="answer_8" required></td>
+        </tr>
+        <tr>
+            <td><p>What is brown and sticky?</p></td>
+            <td><input type="number" name="answer_9" required></td>
+        </tr>
+        <tr>
+            <td><p>What is brown and sticky?</p></td>
+            <td><input type="number" name="answer_10" required></td>
         </tr>
         <tr>
             <td colspan="2"><input type="submit" value="Submit"></td>

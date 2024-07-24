@@ -19,9 +19,19 @@ class User(db.Model):
         return '<User %r>' % self.id
     
 class Answer(db.Model):
-    #initial form
+    #answers form
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Ensure this is unique
-    answer = db.Column(db.String(300))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    answer_1 = db.Column(db.String(50))
+    answer_2 = db.Column(db.String(50))
+    answer_3 = db.Column(db.String(50))
+    answer_4 = db.Column(db.String(50))
+    answer_5 = db.Column(db.String(50))
+    answer_6 = db.Column(db.String(50))
+    answer_7 = db.Column(db.String(50))
+    answer_8 = db.Column(db.String(50))
+    answer_9 = db.Column(db.String(50))
+    answer_10 = db.Column(db.String(50))
     def __repr__(self):
         return '<Answer %r>' % self.id
 
@@ -65,10 +75,47 @@ def test_page():
     if request.method == 'POST':
         # Handle the POST request here
         # Retrieve form data
-        user_id = request.form.get('id')  # Hidden field for user ID
-        answer = request.form.get('answer_1', 'answer_2', 'answer_3', 'answer_4')     # Form field for age
-    
+        id = request.form.get('id')
+        user_id = request.form.get('user_id')  # Hidden field for user ID
+        answer_1 = request.form.get('answer_1')
+        answer_2 = request.form.get('answer_2')
+        answer_3 = request.form.get('answer_3')
+        answer_4 = request.form.get('answer_4')
+        answer_5 = request.form.get('answer_5')
+        answer_6 = request.form.get('answer_6')
+        answer_7 = request.form.get('answer_7')
+        answer_8 = request.form.get('answer_8')
+        answer_9 = request.form.get('answer_9')
+        answer_10 = request.form.get('answer_10')
+
+        try:
+            # Create a new Answer instance
+            new_answer = Answer(
+                user_id=user_id,
+                answer_1=answer_1,
+                answer_2=answer_2,
+                answer_3=answer_3,
+                answer_4=answer_4,
+                answer_5=answer_5,
+                answer_6=answer_6,
+                answer_7=answer_7,
+                answer_8=answer_8,
+                answer_9=answer_9,
+                answer_10=answer_10
+            )
+
+            # Add and commit the new_answer instance to the database session
+            db.session.add(new_answer)
+            db.session.commit()
+            return redirect('/score')
+        except Exception as e:
+            return f'There was an issue: {str(e)}'
+
     return render_template('test.html')
+
+@app.route('/score')
+def score_page():
+    return render_template('score.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
