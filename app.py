@@ -9,19 +9,24 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
-# define database
+# Define User table
 class User(db.Model):
-    #initial form
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Ensure this is unique
+    __tablename__ = 'user'  # Explicitly set the table name
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     age = db.Column(db.Integer)
     gender = db.Column(db.String(80))
+
     def __repr__(self):
-        return '<User %r>' % self.id
-    
+        return f'<User {self.id}>'
+
+# Define Answer table
 class Answer(db.Model):
-    #answers form
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Ensure this is unique
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    __tablename__ = 'answer'  # Explicitly set the table name
+
+    # Define columns
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     answer_1 = db.Column(db.String(50))
     answer_2 = db.Column(db.String(50))
     answer_3 = db.Column(db.String(50))
@@ -32,8 +37,9 @@ class Answer(db.Model):
     answer_8 = db.Column(db.String(50))
     answer_9 = db.Column(db.String(50))
     answer_10 = db.Column(db.String(50))
+
     def __repr__(self):
-        return '<Answer %r>' % self.id
+        return f'<Answer {self.id}>'
 
 #route
 @app.route('/', methods=['POST', 'GET'])
