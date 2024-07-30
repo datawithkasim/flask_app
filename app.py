@@ -1,16 +1,18 @@
-from flask import Flask, render_template, url_for, request, redirect
+from flask import Flask, render_template, url_for, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone
 from sqlalchemy import inspect
+import random
+import json
+import os 
 
-# refers to self
-app = Flask(__name__)
-# database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-db = SQLAlchemy(app)
+app = Flask(__name__) # create the Flask app
+app.secret_key = 'your_secret_key' # shitty secret key
 
-# Define User table
-class User(db.Model):
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db' # connect to the database
+db = SQLAlchemy(app) # initialize the database
+
+class User(db.Model): # Define User table
     __tablename__ = 'user'  # Explicitly set the table name
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -70,6 +72,10 @@ def index():
         try:
             db.session.add(user_stats)
             db.session.commit()
+
+            # Set user_id in session
+            session['user_id'] = user_stats.id
+
             return redirect('/test')
         except Exception as e:
             return f'There was an issue: {str(e)}'
@@ -78,46 +84,53 @@ def index():
 
 @app.route('/test', methods=['POST', 'GET'])
 def test_page():
-    if request.method == 'POST':
-        # Handle the POST request here
-        # Retrieve form data
-        id = request.form.get('id')
-        user_id = request.form.get('user_id')  # Hidden field for user ID
-        answer_1 = request.form.get('answer_1')
-        answer_2 = request.form.get('answer_2')
-        answer_3 = request.form.get('answer_3')
-        answer_4 = request.form.get('answer_4')
-        answer_5 = request.form.get('answer_5')
-        answer_6 = request.form.get('answer_6')
-        answer_7 = request.form.get('answer_7')
-        answer_8 = request.form.get('answer_8')
-        answer_9 = request.form.get('answer_9')
-        answer_10 = request.form.get('answer_10')
+    user_id = session.get('user_id')
+
+    # Check if the user_id exists in the session
+    if user_id is None:
+        # If not, redirect to the index to likely prompt login or session start
+        return redirect('/')
+
+    if request.method == 'GET':
+        # Load questions from JSON file
+        with open('data/questions.json') as file:
+            questions = json.load(file)
+
+        # Randomly select 10 questions
+        selected_questions = random.sample(questions, 10)
+
+        # Render these questions on the test page
+        return render_template('test.html', user_id=user_id, questions=selected_questions)
+
+    elif request.method == 'POST':
+        # Retrieve form data and handle the submission
+        answers = {
+            'user_id': user_id,
+            'answer_1': request.form.get(f'answer_{{q.id}}'),
+            'answer_2': request.form.get(f'answer_{{q.id}}'),
+            'answer_3': request.form.get(f'answer_{{q.id}}'),
+            'answer_4': request.form.get(f'answer_{{q.id}}'),
+            'answer_5': request.form.get(f'answer_{{q.id}}'),
+            'answer_6': request.form.get(f'answer_{{q.id}}'),
+            'answer_7': request.form.get(f'answer_{{q.id}}'),
+            'answer_8': request.form.get(f'answer_{{q.id}}'),
+            'answer_9': request.form.get(f'answer_{{q.id}}'),
+            'answer_10': request.form.get(f'answer_{{q.id}}')
+        }
+
+        # Create a new Answer instance
+        new_answer = Answer(**answers)
 
         try:
-            # Create a new Answer instance
-            new_answer = Answer(
-                user_id=user_id,
-                answer_1=answer_1,
-                answer_2=answer_2,
-                answer_3=answer_3,
-                answer_4=answer_4,
-                answer_5=answer_5,
-                answer_6=answer_6,
-                answer_7=answer_7,
-                answer_8=answer_8,
-                answer_9=answer_9,
-                answer_10=answer_10
-            )
-
-            # Add and commit the new_answer instance to the database session
             db.session.add(new_answer)
             db.session.commit()
+
             return redirect('/score')
         except Exception as e:
             return f'There was an issue: {str(e)}'
 
-    return render_template('test.html')
+    # Handle other methods if necessary
+    return render_template('test.html', user_id=user_id)
 
 @app.route('/score')
 def score_page():

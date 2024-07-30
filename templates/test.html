@@ -10,51 +10,20 @@
 
 <form method="POST" action="/test">
     <table>
+        {% for q in questions %}
         <tr>
-            <input type="hidden" name="user_id" value="{{ user_id }}"> <!-- Hidden field for user ID -->
+            <td>
+                <label for="answer_{{q.id}}">{{ q.question }}</label>
+            </td>
+            <td>
+                <input type="text" id="answer_{{q.id}}" name="answer_{{q.id}}">
+            </td>
         </tr>
+        {% endfor %}
         <tr>
-            <td><p>What is 3+3?</p></td>
-            <td><input type="number" name="answer_1" required></td>
-        </tr>
-        <tr>
-            <td><p>What is 2 squared?</p></td>
-            <td><input type="number" name="answer_2" required></td>
-        </tr>
-        <tr>
-            <td><p>What is pi to 3 decimal places?</p></td>
-            <td><input type="number" name="answer_3" required></td>
-        </tr>
-        <tr>
-            <td><p>What is brown and sticky?</p></td>
-            <td><input type="number" name="answer_4" required></td>
-        </tr>
-        <tr>
-            <td><p>What is brown and sticky?</p></td>
-            <td><input type="number" name="answer_5" required></td>
-        </tr>
-        <tr>
-            <td><p>What is 3+3?</p></td>
-            <td><input type="number" name="answer_6" required></td>
-        </tr>
-        <tr>
-            <td><p>What is 2 squared?</p></td>
-            <td><input type="number" name="answer_7" required></td>
-        </tr>
-        <tr>
-            <td><p>What is pi to 3 decimal places?</p></td>
-            <td><input type="number" name="answer_8" required></td>
-        </tr>
-        <tr>
-            <td><p>What is brown and sticky?</p></td>
-            <td><input type="number" name="answer_9" required></td>
-        </tr>
-        <tr>
-            <td><p>What is brown and sticky?</p></td>
-            <td><input type="number" name="answer_10" required></td>
-        </tr>
-        <tr>
-            <td colspan="2"><input type="submit" value="Submit"></td>
+            <td colspan="2" style="text-align: center;"> <!-- Center the button and span it across both columns -->
+                <button type="submit">Submit</button>
+            </td>
         </tr>
     </table>
 </form>
