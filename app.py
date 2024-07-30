@@ -24,21 +24,10 @@ class User(db.Model): # Define User table
 
 # Define Answer table
 class Answer(db.Model):
-    __tablename__ = 'answer'  # Explicitly set the table name
-
-    # Define columns
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    __tablename__ = 'answer'
+    id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    answer_1 = db.Column(db.String(50))
-    answer_2 = db.Column(db.String(50))
-    answer_3 = db.Column(db.String(50))
-    answer_4 = db.Column(db.String(50))
-    answer_5 = db.Column(db.String(50))
-    answer_6 = db.Column(db.String(50))
-    answer_7 = db.Column(db.String(50))
-    answer_8 = db.Column(db.String(50))
-    answer_9 = db.Column(db.String(50))
-    answer_10 = db.Column(db.String(50))
+    answers = db.Column(db.JSON) 
 
     def __repr__(self):
         return f'<Answer {self.id}>'
@@ -85,51 +74,28 @@ def index():
 @app.route('/test', methods=['POST', 'GET'])
 def test_page():
     user_id = session.get('user_id')
-
-    # Check if the user_id exists in the session
     if user_id is None:
-        # If not, redirect to the index to likely prompt login or session start
         return redirect('/')
-
+    
     if request.method == 'GET':
-        # Load questions from JSON file
         with open('data/questions.json') as file:
             questions = json.load(file)
-
-        # Randomly select 10 questions
         selected_questions = random.sample(questions, 10)
-
-        # Render these questions on the test page
+        session['questions'] = selected_questions
         return render_template('test.html', user_id=user_id, questions=selected_questions)
-
+    
     elif request.method == 'POST':
-        # Retrieve form data and handle the submission
-        answers = {
-            'user_id': user_id,
-            'answer_1': request.form.get(f'answer_{{q.id}}'),
-            'answer_2': request.form.get(f'answer_{{q.id}}'),
-            'answer_3': request.form.get(f'answer_{{q.id}}'),
-            'answer_4': request.form.get(f'answer_{{q.id}}'),
-            'answer_5': request.form.get(f'answer_{{q.id}}'),
-            'answer_6': request.form.get(f'answer_{{q.id}}'),
-            'answer_7': request.form.get(f'answer_{{q.id}}'),
-            'answer_8': request.form.get(f'answer_{{q.id}}'),
-            'answer_9': request.form.get(f'answer_{{q.id}}'),
-            'answer_10': request.form.get(f'answer_{{q.id}}')
-        }
-
-        # Create a new Answer instance
-        new_answer = Answer(**answers)
-
+        selected_questions = session.get('questions', [])
+        answers_dict = {f'answer_{question["id"]}': request.form.get(f'answer_{question["id"]}') for question in selected_questions}
+        
+        new_answer = Answer(user_id=user_id, answers=answers_dict)
         try:
             db.session.add(new_answer)
             db.session.commit()
-
             return redirect('/score')
         except Exception as e:
             return f'There was an issue: {str(e)}'
 
-    # Handle other methods if necessary
     return render_template('test.html', user_id=user_id)
 
 @app.route('/score')
