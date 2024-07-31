@@ -31,6 +31,17 @@ class Answer(db.Model):
 
     def __repr__(self):
         return f'<Answer {self.id}>'
+    
+# Define Score table
+class Score(db.Model):
+    __tablename__ = 'score'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    score = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return f'<Score {self.id} - User {self.user_id} - Score {self.score}>'
+
 
 #route
 @app.route('/', methods=['POST', 'GET'])
@@ -92,15 +103,45 @@ def test_page():
         try:
             db.session.add(new_answer)
             db.session.commit()
+
+            # Set user_id in session
+            session['user_id'] = new_answer.user_id
+
             return redirect('/score')
         except Exception as e:
             return f'There was an issue: {str(e)}'
 
     return render_template('test.html', user_id=user_id)
 
-@app.route('/score')
+@app.route('/score', methods=['POST', 'GET'])
 def score_page():
-    return render_template('score.html')
+    user_id = session.get('user_id')
+    if user_id is None:
+        return redirect('/')
+    
+    user_answers = Answer.query.filter_by(user_id=user_id).order_by(Answer.id.desc()).first()
+    selected_questions = session.get('questions', [])
+
+    if not user_answers or not selected_questions:
+        return redirect('/')
+
+    score = 0
+    for question in selected_questions:
+        qid = question["id"]
+        correct_answer = question["correct_answer"]
+        user_answer = user_answers.answers.get(f'answer_{qid}')
+        if user_answer == correct_answer:
+            score += 1
+
+    # Store the score in the Score table
+    new_score = Score(user_id=user_id, score=score)
+    try:
+        db.session.add(new_score)
+        db.session.commit()
+    except Exception as e:
+        return f'There was an issue saving the score: {str(e)}'
+
+    return render_template('score.html', score=score)
 
 if __name__ == '__main__':
     app.run(debug=True)
