@@ -1,34 +1,39 @@
-{% extends 'base.html' %}
-
-{% block head %}
+{% extends 'base.html' %} {% block head %}
 <title>Scores</title>
-{% endblock %}
-
-{% block body %}
+{% endblock %} {% block body %}
 <h1>SCORES!</h1>
 <div id="chart"></div>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <!-- Load ApexCharts library -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    var options = {
-        chart: {
-            type: 'line'
-        },
-        series: [{
-            name: 'sales',
-            data: [30, 40, 35, 50, 49, 60, 70, 91, 125]
-        }],
-        xaxis: {
-            categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
+  document.addEventListener('DOMContentLoaded', () => {
+    const options = {
+      chart: {
+        type: 'line'
+      },
+      series: [{
+        name: 'Scores',
+        data: JSON.parse('{{ scores_data|tojson }}')
+      }],
+      xaxis: {
+        categories: JSON.parse('{{ scores_dates|tojson }}')
+      },
+      yaxis: {
+        title: {
+          text: 'Score'
         }
+      },
+      xaxis: {
+        title: {
+          text: 'Distribution of Scores'
+        }
+      }
     };
 
-    var chart = new ApexCharts(document.querySelector("#chart"), options);
+    const chartContainer = document.querySelector('#chart');
+    const chart = new ApexCharts(chartContainer, options);
     chart.render();
-});
+  });
 </script>
 {% endblock %}

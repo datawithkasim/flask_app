@@ -87,28 +87,38 @@ def test_page():
     user_id = session.get('user_id')
     if user_id is None:
         return redirect('/')
-    
+
     if request.method == 'GET':
         with open('data/questions.json') as file:
             questions = json.load(file)
+
         selected_questions = random.sample(questions, 10)
         session['questions'] = selected_questions
         return render_template('test.html', user_id=user_id, questions=selected_questions)
-    
+
     elif request.method == 'POST':
         selected_questions = session.get('questions', [])
-        answers_dict = {f'answer_{question["id"]}': request.form.get(f'answer_{question["id"]}') for question in selected_questions}
-        
+        answers_dict = {}
+
+        # Ensure all answers are integers
+        for question in selected_questions:
+            question_id = question["id"]
+            try:
+                # Try to get the form data and convert it to an integer
+                answer = int(request.form.get(f'answer_{question_id}', ''))
+            except ValueError:
+                # Handle non-integer input gracefully
+                return f"Invalid input for question {question_id}. Please enter a valid integer."
+
+            answers_dict[f'answer_{question_id}'] = answer
+
         new_answer = Answer(user_id=user_id, answers=answers_dict)
         try:
             db.session.add(new_answer)
             db.session.commit()
-
-            # Set user_id in session
-            session['user_id'] = new_answer.user_id
-
             return redirect('/score')
         except Exception as e:
+            db.session.rollback()
             return f'There was an issue: {str(e)}'
 
     return render_template('test.html', user_id=user_id)
@@ -118,7 +128,7 @@ def score_page():
     user_id = session.get('user_id')
     if user_id is None:
         return redirect('/')
-    
+
     user_answers = Answer.query.filter_by(user_id=user_id).order_by(Answer.id.desc()).first()
     selected_questions = session.get('questions', [])
 
@@ -141,7 +151,12 @@ def score_page():
     except Exception as e:
         return f'There was an issue saving the score: {str(e)}'
 
-    return render_template('score.html', score=score)
+    # Query all scores for the current user
+    all_scores = Score.query.filter_by(user_id=user_id).order_by(Score.id).all()
+    scores_data = [s.score for s in all_scores]
+    scores_dates = [s.id for s in all_scores]  # Using `id` for simplicity, change as needed
+
+    return render_template('score.html', score=score, scores_data=scores_data, scores_dates=scores_dates)
 
 if __name__ == '__main__':
     app.run(debug=True)
